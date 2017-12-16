@@ -188,5 +188,189 @@ namespace AlgorithmPractice
 
             return depthLeft >= depthRight ? depthLeft : depthRight;
         }
+
+        //leetcode 107
+        public IList<IList<int>> LevelOrderBottom(TreeNode root)
+        {           
+            var result = new List<IList<int>>();
+            if (root == null) return result;
+            var currentLevelTreeNode = new List<TreeNode> { root };
+            while(currentLevelTreeNode.Count>0)
+            {
+                IList<int> currentLevelValueList = new List<int>();
+                List<TreeNode> nextLevelTreeNode = new List<TreeNode>();
+                foreach(var node in currentLevelTreeNode)
+                {
+                    currentLevelValueList.Add(node.val);
+                    if (node.left != null) nextLevelTreeNode.Add(node.left);
+                    if (node.right != null) nextLevelTreeNode.Add(node.right);
+                }
+                result.Insert(0, currentLevelValueList);
+                currentLevelTreeNode = nextLevelTreeNode;
+            }
+
+            return result;
+        }
+
+        //leetcode 108
+        public TreeNode SortedArrayToBST(int[] nums)
+        {
+            if (nums == null || nums.Length == 0) return null;
+            int mid = nums.Length / 2;
+            TreeNode node = new TreeNode(nums[mid]);
+            var left = nums.Take(mid).ToArray();
+            node.left= SortedArrayToBST(left);
+            var right = nums.Skip(mid + 1).Take(nums.Length - mid - 1).ToArray();
+            node.right=SortedArrayToBST(right);
+
+            return node;
+        }
+        public void DispalyTreeNode(TreeNode root)
+        {
+            if (root == null)
+                Console.WriteLine("Tree null");
+            var current = new List<TreeNode>() { root };
+            while(current.Count>0)
+            {
+                var next = new List<TreeNode>();
+                string currentValue = null;
+                foreach(var node in current)
+                {
+                    if (node.left != null) next.Add(node.left);
+                    if (node.right != null) next.Add(node.right);
+                    currentValue += node.val.ToString()+" ";
+                }
+                Console.WriteLine(currentValue);
+                current = next;
+            }
+            
+        }
+
+        public int MinDepth(TreeNode root)
+        {
+            if (root == null) return 0;
+            int min = 1;
+            var current = new List<TreeNode>() { root };
+            while(current.Count>0)
+            {
+                var next = new List<TreeNode>();
+                foreach(var node in current)
+                {
+                    if(node.left==null && node.right==null)
+                    {
+                        return min;
+                    }else
+                    {
+                        if (node.left != null) next.Add(node.left);
+                        if (node.right != null) next.Add(node.right);
+                    }
+                }
+                current = next;
+                min++;
+            }
+
+            return min;
+        }
+
+        public bool IsBalanced(TreeNode root)
+        {
+            if (root == null) return true;
+            var maxLeft = MaxDepthOfTree(root.left);
+            var maxRight = MaxDepthOfTree(root.right);
+            bool isThisNodeBalanced= (maxLeft - maxRight) * (maxLeft - maxRight) <= 1;
+            return isThisNodeBalanced && IsBalanced(root.left) && IsBalanced(root.right);
+        }
+
+        private int MaxDepthOfTree(TreeNode node)
+        {
+            if (node == null) return 0;            
+            var left=1 + MaxDepthOfTree(node.left);
+            var right=1 + MaxDepthOfTree(node.right);
+            return left >= right ? left : right;
+        }
+
+        //LeetCode 112
+        public bool HasPathSum(TreeNode root, int sum)
+        {
+            if (root == null) return false;
+            if (root.left == null && root.right == null) return root.val == sum;
+            //var result = new List<int>();
+            //if (root.left != null)
+            //    GetPathSum(root.left,  root.val, ref result);
+            //if (root.right != null)
+            //    GetPathSum(root.right,  root.val, ref result);
+
+            //foreach (var pathSum in result)
+            //    if (pathSum == sum)
+            //        return true;
+
+            //return false;
+            return GetPathSum(root.left, root.val, sum) || GetPathSum(root.right, root.val, sum);
+
+        }
+        private void GetPathSum(TreeNode pNode, int pSum, ref List<int> result)
+        {           
+            if (pNode.left==null && pNode.right==null ) result.Add( pSum + pNode.val);
+            if (pNode.left != null)          
+                GetPathSum(pNode.left, pSum + pNode.val, ref result);          
+            if (pNode.right != null)      
+                GetPathSum(pNode.right, pSum + pNode.val, ref result);    
+        }
+        private bool GetPathSum(TreeNode pNode, int pSum, int sum)
+        {
+            if (pNode == null) return false;
+            if (pNode.left == null && pNode.right == null) return (pSum + pNode.val)==sum;
+           
+           return  GetPathSum(pNode.left, pSum + pNode.val, sum) || GetPathSum(pNode.right, pSum + pNode.val, sum);          
+              
+        }
+        //end 112
+
+        //LeetCode 118
+        public IList<IList<int>> Generate(int numRows)
+        {            
+            var result = new List<IList<int>>();
+            if (numRows <= 0) return result;
+            var row1 = new List<int>() { 1 };
+            result.Add(row1);
+            var preRow = row1;
+            for(int count=2;count<=numRows;count++)
+            {
+                var currentRow = new List<int>();
+                for(int i=0; i<count;i++)
+                {
+                    if (i < preRow.Count && i - 1 >= 0)
+                        currentRow.Add(preRow[i] + preRow[i - 1]);
+                    else
+                        currentRow.Add(1);
+                }
+                result.Add(currentRow);
+                preRow = currentRow;
+            }
+            return result;
+        }
+
+        //LeetCode 119
+        public IList<int> GetRow(int rowIndex)
+        {
+            var result = new List<int>();
+            if (rowIndex <= 0) return result;
+            for(int count=1;count<=rowIndex; count++)
+            {
+                if (count == 1)
+                    result.Add(1);
+                else
+                {                   
+                    for(int i=result.Count-1; i>=1;i--)
+                    {                        
+                        result[i] += result[i-1];                        
+                    }
+                    result.Add(1);
+                }
+            }
+            Console.WriteLine(string.Join(",", result));
+            return result;
+        }
     }
 }
+
